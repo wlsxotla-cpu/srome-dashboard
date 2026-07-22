@@ -39,6 +39,17 @@ st.markdown(
         }
         .ancm-title { font-weight: 600; margin-bottom: 4px; }
         .ancm-meta { color: #777; font-size: 0.85rem; margin-bottom: 8px; }
+        .badge {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-right: 4px;
+        }
+        .badge-status { background: #e6f6ec; color: #14803c; }
+        .badge-period { background: #fff4e0; color: #a15c00; }
+        .badge-dday { background: #fdecea; color: #c0392b; }
         </style>
         """
     ),
@@ -89,9 +100,11 @@ for category, list_url in SROME_LIST_URLS.items():
                     <div class="ancm-card">
                     <div class="ancm-title">{item['title']}</div>
                     <div class="ancm-meta">
-                    {item.get('status', '')} · 기획년도 {item.get('plan_year', '')}<br>
-                    접수기간 {item.get('period', '')}<br>
-                    공고일 {item.get('notice_date', '')} · {item.get('dday', '')}
+                    <span class="badge badge-status">{item.get('status', '')}</span>
+                    <span class="badge badge-dday">{item.get('dday', '')}</span><br><br>
+                    기획년도 {item.get('plan_year', '')}<br>
+                    <span class="badge badge-period">접수기간 {item.get('period', '')}</span><br><br>
+                    공고일 {item.get('notice_date', '')}
                     </div>
                     </div>
                     """
