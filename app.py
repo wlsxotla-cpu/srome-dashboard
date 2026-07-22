@@ -94,6 +94,12 @@ for category, list_url in SROME_LIST_URLS.items():
     cols = st.columns(3)
     for i, item in enumerate(cat_items):
         with cols[i % 3]:
+            detail_url = item.get("detail_url")
+            link_html = (
+                f'<a href="{detail_url}" target="_blank" style="font-size:0.85rem;">🔗 SROME에서 보기</a>'
+                if detail_url
+                else ""
+            )
             st.markdown(
                 _html(
                     f"""
@@ -104,7 +110,8 @@ for category, list_url in SROME_LIST_URLS.items():
                     <span class="badge badge-dday">{item.get('dday', '')}</span><br><br>
                     기획년도 {item.get('plan_year', '')}<br>
                     <span class="badge badge-period">접수기간 {item.get('period', '')}</span><br><br>
-                    공고일 {item.get('notice_date', '')}
+                    공고일 {item.get('notice_date', '')}<br>
+                    {link_html}
                     </div>
                     </div>
                     """
