@@ -96,7 +96,11 @@ for category, list_url in SROME_LIST_URLS.items():
         with cols[i % 3]:
             detail_url = item.get("detail_url")
             link_html = (
-                f'<a href="{detail_url}" target="_blank" style="font-size:0.85rem;">🔗 SROME에서 보기</a>'
+                f'<a href="{detail_url}" target="_blank" style="'
+                'display:inline-block;padding:4px 10px;border-radius:6px;'
+                'border:1px solid #2c5aa0;background:white;color:#2c5aa0;'
+                'text-decoration:none;font-size:0.85rem;">'
+                "🔗 SROME에서 보기</a>"
                 if detail_url
                 else ""
             )
