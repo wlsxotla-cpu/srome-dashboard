@@ -52,6 +52,16 @@ st.markdown(
         .badge-status { background: #e6f6ec; color: #14803c; }
         .badge-period { background: #fff4e0; color: #a15c00; }
         .badge-dday { background: #fdecea; color: #c0392b; }
+        .tag-new {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            margin-right: 4px;
+            background: #ffe8e8;
+            color: #c0392b;
+        }
         </style>
         """
     ),
@@ -76,6 +86,16 @@ def update_badge_html(updated_at_str: str) -> str:
     )
 
 
+def is_new(notice_date_str: str, days: int = 7) -> bool:
+    KST = timezone(timedelta(hours=9))
+    try:
+        d = datetime.strptime(notice_date_str, "%Y-%m-%d").date()
+        today = datetime.now(KST).replace(tzinfo=None).date()
+        return (today - d).days <= days
+    except Exception:
+        return False
+
+
 st.title("🔎 SROME 수요조사·인터넷공시")
 st.caption("⏰ IRIS 스크래퍼와 같은 GitHub Actions에서 매일 새벽 6시경(KST)에 같이 갱신됩니다.")
 
@@ -94,6 +114,16 @@ except Exception as e:
     st.stop()
 
 st.markdown(update_badge_html(data.get("updated_at", "")), unsafe_allow_html=True)
+st.markdown(
+    _html(
+        """
+        <div style="display:inline-block;background:#ffe8e8;color:#c0392b;
+        padding:6px 16px;border-radius:999px;font-weight:700;font-size:0.95rem;
+        margin-bottom:12px;">⭐ NEW = 공고일 기준 최근 7일 이내 등록된 항목</div>
+        """
+    ),
+    unsafe_allow_html=True,
+)
 
 with st.sidebar:
     st.header("⚙️ 설정")
@@ -126,11 +156,12 @@ for category, list_url in SROME_LIST_URLS.items():
                 if detail_url
                 else ""
             )
+            new_badge = '<span class="tag-new">⭐ NEW</span>' if is_new(item.get("notice_date", "")) else ""
             st.markdown(
                 _html(
                     f"""
                     <div class="ancm-card">
-                    <div class="ancm-title">{item['title']}</div>
+                    <div class="ancm-title">{new_badge}{item['title']}</div>
                     <div class="ancm-meta">
                     <span class="badge badge-status">{item.get('status', '')}</span>
                     <span class="badge badge-dday">{item.get('dday', '')}</span><br><br>
