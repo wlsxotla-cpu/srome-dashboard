@@ -127,14 +127,14 @@ def update_badge_html(updated_at_str: str) -> str:
         today = datetime.now(KST).replace(tzinfo=None).date()
         is_today = dt.date() == today
         bg, color = ("#e6f6ec", "#14803c") if is_today else ("#fdecea", "#c0392b")
-        label = "🟢 오늘 갱신됨" if is_today else "🔴 갱신이 늦어지고 있어요"
+        label = "🟢 오늘 수집됨" if is_today else "🔴 수집이 늦어지고 있어요"
     except Exception:
         bg, color, label = "#eee", "#555", "ℹ️"
 
     return (
         f'<div style="display:inline-block;background:{bg};color:{color};'
         f'padding:6px 16px;border-radius:999px;font-weight:700;font-size:0.95rem;'
-        f'margin-bottom:12px;">{label} · 마지막 갱신 {updated_at_str}</div>'
+        f'margin-bottom:12px;">{label} · 마지막 수집 {updated_at_str}</div>'
     )
 
 
@@ -149,7 +149,7 @@ def is_new(notice_date_str: str, days: int = 7) -> bool:
 
 
 st.title("🔎 SROME 수요조사·인터넷공시")
-st.caption("⏰ IRIS 스크래퍼와 같은 GitHub Actions에서 매일 새벽 6시경(KST)에 같이 갱신됩니다.")
+st.caption("⏰ IRIS 스크래퍼와 같은 GitHub Actions에서 매일 새벽 6시경(KST)에 같이 수집됩니다.")
 
 
 @st.cache_data(ttl=300)
@@ -179,12 +179,12 @@ st.markdown(
 
 with st.sidebar:
     st.header("⚙️ 설정")
-    st.caption(f"마지막 갱신: {data.get('updated_at', '알 수 없음')}")
-    if st.button("🔄 새로고침"):
+    st.caption(f"마지막 수집: {data.get('updated_at', '알 수 없음')}")
+    if st.button("🔄 화면 새로고침", help="새로 수집하지 않고, 이미 저장된 최신 데이터를 화면에 다시 불러옵니다."):
         st.cache_data.clear()
         st.rerun()
 
-    if st.button("🚀 지금 수집"):
+    if st.button("🚀 지금 수집", help="IRIS/SROME 사이트에서 지금 바로 새로 데이터를 가져옵니다 (1~2분 정도 걸려요)."):
         since = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
         ok, err = trigger_scrape()
         if not ok:
@@ -203,7 +203,7 @@ with st.sidebar:
 
                 if run and run["status"] == "completed":
                     if run["conclusion"] == "success":
-                        status.update(label="✅ 수집 완료! 목록을 새로고침합니다.", state="complete")
+                        status.update(label="✅ 수집 완료! 화면을 새로고침합니다.", state="complete")
                         st.cache_data.clear()
                     else:
                         status.update(
