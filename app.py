@@ -85,11 +85,22 @@ st.markdown(
     _html(
         """
         <style>
+        .ancm-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 6px;
+        }
+        @media (max-width: 900px) {
+            .ancm-grid {
+                grid-template-columns: 1fr;
+            }
+        }
         .ancm-card {
             border: 1px solid #e5e5e5;
             border-radius: 8px;
             padding: 12px 16px;
-            margin-bottom: 10px;
+            margin-bottom: 0;
         }
         .ancm-title { font-weight: 600; margin-bottom: 4px; }
         .ancm-meta { color: #777; font-size: 0.85rem; margin-bottom: 8px; }
@@ -228,38 +239,44 @@ for category, list_url in SROME_LIST_URLS.items():
         st.link_button(f"{category} 사이트에서 직접 보기 ↗", list_url)
         continue
 
-    cols = st.columns(3)
-    for i, item in enumerate(cat_items):
-        with cols[i % 3]:
-            detail_url = item.get("detail_url")
-            link_html = (
-                f'<a href="{detail_url}" target="_blank" style="'
-                'display:inline-block;padding:4px 10px;border-radius:6px;'
-                'border:1px solid #2c5aa0;background:white;color:#2c5aa0;'
-                'text-decoration:none;font-size:0.85rem;">'
-                "🔗 SROME에서 보기</a>"
-                if detail_url
-                else ""
-            )
-            new_badge = '<span class="tag-new">⭐ NEW</span>' if is_new(item.get("notice_date", "")) else ""
-            st.markdown(
-                _html(
-                    f"""
-                    <div class="ancm-card">
-                    <div class="ancm-title">{new_badge}{item['title']}</div>
-                    <div class="ancm-meta">
-                    <span class="badge badge-status">{item.get('status', '')}</span>
-                    <span class="badge badge-dday">{item.get('dday', '')}</span><br><br>
-                    기획년도 {item.get('plan_year', '')}<br>
-                    <span class="badge badge-period">접수기간 {item.get('period', '')}</span><br><br>
-                    공고일 {item.get('notice_date', '')}<br>
-                    {link_html}
-                    </div>
-                    </div>
-                    """
-                ),
-                unsafe_allow_html=True,
-            )
+    cat_items = sorted(
+        cat_items,
+        key=lambda it: it.get("notice_date") or "",
+        reverse=True,
+    )
+
+    def render_item(item) -> str:
+        detail_url = item.get("detail_url")
+        link_html = (
+            f'<a href="{detail_url}" target="_blank" style="'
+            'display:inline-block;padding:4px 10px;border-radius:6px;'
+            'border:1px solid #2c5aa0;background:white;color:#2c5aa0;'
+            'text-decoration:none;font-size:0.85rem;">'
+            "🔗 SROME에서 보기</a>"
+            if detail_url
+            else ""
+        )
+        new_badge = '<span class="tag-new">⭐ NEW</span>' if is_new(item.get("notice_date", "")) else ""
+        return _html(
+            f"""
+            <div class="ancm-card">
+            <div class="ancm-title">{new_badge}{item['title']}</div>
+            <div class="ancm-meta">
+            <span class="badge badge-status">{item.get('status', '')}</span>
+            <span class="badge badge-dday">{item.get('dday', '')}</span><br><br>
+            기획년도 {item.get('plan_year', '')}<br>
+            <span class="badge badge-period">접수기간 {item.get('period', '')}</span><br><br>
+            공고일 {item.get('notice_date', '')}<br>
+            {link_html}
+            </div>
+            </div>
+            """
+        )
+
+    # st.columns()로 나누면 좁은 화면(모바일)에서 컬럼이 통째로 세로로 쌓여서
+    # 날짜순 정렬이 화면상 뒤섞여 보이므로, 하나의 CSS grid 블록으로 렌더링한다.
+    cards_html = "".join(render_item(item) for item in cat_items)
+    st.markdown(f'<div class="ancm-grid">{cards_html}</div>', unsafe_allow_html=True)
     st.link_button(f"{category} 전체 목록 사이트에서 보기 ↗", list_url)
 
 st.divider()
