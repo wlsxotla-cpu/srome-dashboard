@@ -164,14 +164,16 @@ st.caption("⏰ IRIS 스크래퍼와 같은 GitHub Actions에서 매일 새벽 6
 
 
 @st.cache_data(ttl=300)
-def load_data():
-    resp = requests.get(SROME_JSON_URL, timeout=15)
+def load_data(_bust: str = ""):
+    url = SROME_JSON_URL if not _bust else f"{SROME_JSON_URL}?bust={_bust}"
+    resp = requests.get(url, timeout=15)
     resp.raise_for_status()
     return resp.json()
 
 
 try:
-    data = load_data()
+    _bust = st.session_state.pop("force_bust", "")
+    data = load_data(_bust)
 except Exception as e:
     st.error(f"데이터를 불러오지 못했습니다: {e}")
     st.stop()
@@ -216,6 +218,7 @@ with st.sidebar:
                     if run["conclusion"] == "success":
                         status.update(label="✅ 수집 완료! 화면을 새로고침합니다.", state="complete")
                         st.cache_data.clear()
+                        st.session_state["force_bust"] = str(time.time())
                     else:
                         status.update(
                             label=f"❌ 수집 실패 ({run['conclusion']}) - Actions 로그를 확인해주세요",
